@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+.env*
+!.env.example
+private/
+public/private/
+*.private.*
+test-results/
+playwright-report/
+*.tsbuildinfo
