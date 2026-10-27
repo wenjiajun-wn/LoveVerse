@@ -1,0 +1,10 @@
+# 仅示例；不能原样发布。凭据、域名与 Tunnel ID 由管理员配置。
+tunnel: REPLACE_WITH_TUNNEL_UUID
+credentials-file: /etc/cloudflared/REPLACE_WITH_TUNNEL_UUID.json
+ingress:
+  - hostname: love.example.com
+    path: ^/api/internal/.*
+    service: http_status:404
+  - hostname: love.example.com
+    service: http://127.0.0.1:3000
+  - service: http_status:404

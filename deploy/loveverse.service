@@ -1,0 +1,20 @@
+[Unit]
+Description=LoveVerse private application
+After=network-online.target
+
+[Service]
+Type=simple
+User=loveverse
+WorkingDirectory=/opt/loveverse
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/loveverse/application.env
+EnvironmentFile=/etc/loveverse/scheduler.env
+ExecStart=/usr/bin/node /opt/loveverse/node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3000
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

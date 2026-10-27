@@ -19,3 +19,6 @@
 Skills：已阅读 planning-and-task-breakdown、senior-backend、agent-harness；使用规划方法，现有模块化 Node 架构足够，不运行完整 Harness、不引入数据库或额外框架。按用户明确要求规划后直接实施。
 
 后续用户明确要求暂不配置账号，先公开使用 AI：新增独立公开演示数据源和受 Origin/同意/限额约束的匿名问答接口，仅可读取 demo.ts；私人入口继续认证。57 项单元/集成测试、18 项公开与 12 项私人浏览器测试通过，并完成只使用公开故事的真实 DeepSeek 全链路检查。
+
+## V4 增量升级
+详细实施与验收见 docs/V4-INTEGRATION.md，保留已完成 V2/V3 计划。

@@ -7,6 +7,7 @@ import { AppError } from './errors';
 import { controlled } from './service';
 import type { IdentityContext } from '../auth/session';
 import { MemoryRepository } from './repository';
+import { loadV4 } from '../v4/store';
 export const MAX_UPLOAD = 8 * 1024 * 1024;
 export function uploadPhoto(ctx: IdentityContext, bytes: Buffer, mime: string) {
   return controlled(ctx, async () => {
@@ -63,6 +64,8 @@ export function deletePhoto(ctx: IdentityContext, id: string, confirmed: boolean
       const records = await new MemoryRepository().list();
       if (records.some((m) => m.photos.some((p) => p.id === id)))
         throw new AppError('CONFLICT', '这张照片仍被回忆引用，请先从回忆中移除', 409);
+      if ((await loadV4()).books.some((b) => b.photos.some((p) => p.id === id)))
+        throw new AppError('CONFLICT', '这张照片仍被回忆录引用，请先解除关联', 409);
       await removeFile('uploads', `${id}.webp`, true);
       return { id };
     });

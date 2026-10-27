@@ -13,12 +13,14 @@ import {
   Gamepad2,
   Home,
   BookHeart,
+  WandSparkles,
 } from 'lucide-react';
 import { couple } from '@/data/demo';
 import type { MemoryView } from '@/lib/memory/adapter';
 import { useMemories } from './memory-provider';
 import { MemoryManager } from './memory-manager';
 import { LoveAgent } from './love-agent';
+import { LoveCompanion } from './love-companion';
 import { daysBetween, todayInShanghai } from '@/lib/dates';
 import { Starfield } from './starfield';
 import { Memories, MemoryDetail } from './memories';
@@ -33,6 +35,7 @@ const tabs = [
   { id: 'games', title: '情侣小游戏', icon: Gamepad2 },
   { id: 'diary', title: '恋爱日记', icon: BookHeart },
   { id: 'agent', title: 'AI 回忆助手', icon: Sparkles },
+  { id: 'companion', title: 'Love Companion', icon: WandSparkles },
 ] as const;
 type Tab = (typeof tabs)[number]['id'];
 export function LoveVerse() {
@@ -292,6 +295,8 @@ export function LoveVerse() {
             <MemoryManager />
           ) : tab === 'agent' ? (
             <LoveAgent />
+          ) : tab === 'companion' ? (
+            <LoveCompanion />
           ) : (
             <Games />
           )}

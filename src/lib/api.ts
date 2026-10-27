@@ -22,6 +22,11 @@ const codes: Record<string, number> = {
   CONFIG: 503,
   BUSY: 503,
   STORAGE: 500,
+  FORBIDDEN: 403,
+  CONSENT: 403,
+  AI_RESPONSE: 502,
+  AI_CITATION: 502,
+  AI_BUDGET: 413,
 };
 export function jsonResult<T>(result: Result<T>, success = 200) {
   return Response.json(result, {
@@ -82,11 +87,11 @@ export async function boundedBody(request: Request, max = 220000) {
   }
   return Buffer.concat(chunks);
 }
-export async function jsonBody(request: Request) {
+export async function jsonBody(request: Request, max = 220000) {
   if (!request.headers.get('content-type')?.startsWith('application/json'))
     throw new AppError('CONTENT_TYPE', '请求必须为 JSON', 415);
   try {
-    return JSON.parse((await boundedBody(request)).toString());
+    return JSON.parse((await boundedBody(request, max)).toString());
   } catch (e) {
     if (e instanceof AppError) throw e;
     throw new AppError('JSON', 'JSON 格式无效');

@@ -1,0 +1,11 @@
+[Unit]
+Description=每十五分钟检查 LoveVerse 纪念日
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+RandomizedDelaySec=30
+Unit=loveverse-reminders.service
+
+[Install]
+WantedBy=timers.target

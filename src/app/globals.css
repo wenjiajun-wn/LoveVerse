@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './memory.css';
 @import './agent.css';
+@import './companion.css';
 @import './layout.css';
 @theme inline {
   --color-ink: #f0edf9;
@@ -1054,6 +1055,9 @@ input:not([type='checkbox']) {
 .skip-link:focus {
   top: 12px;
 }
+.skip-link:not(:focus) {
+  clip-path: inset(50%);
+}
 .planet-5 {
   left: 58%;
   top: 2%;
@@ -1136,12 +1140,16 @@ input:not([type='checkbox']) {
     right: 0;
     height: 50px;
     gap: 0;
-    justify-content: space-around;
+    justify-content: flex-start;
     border-top: 1px solid var(--line);
     padding: 0 3%;
+    overflow-x: auto;
+    scrollbar-width: thin;
   }
   nav a {
     font-size: 10px;
+    padding-inline: 12px;
+    flex: 0 0 auto;
   }
   nav a.active:after {
     bottom: 4px;

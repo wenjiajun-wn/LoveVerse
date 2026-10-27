@@ -1,7 +1,13 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-const forbidden = ['LOVEVERSE_BUILD_SECRET_CANARY_V3', 'process.env.DEEPSEEK_API_KEY'];
+const forbidden = [
+  'LOVEVERSE_BUILD_SECRET_CANARY_V3',
+  'LOVEVERSE_BUILD_SECRET_CANARY_V4',
+  'process.env.DEEPSEEK_API_KEY',
+  'process.env.LOVEVERSE_SCHEDULER_TOKEN',
+];
 if (process.env.DEEPSEEK_API_KEY) forbidden.push(process.env.DEEPSEEK_API_KEY);
+if (process.env.LOVEVERSE_SCHEDULER_TOKEN) forbidden.push(process.env.LOVEVERSE_SCHEDULER_TOKEN);
 let checked = 0;
 async function scan(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {

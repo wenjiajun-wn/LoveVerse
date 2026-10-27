@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+const browserChannel = process.platform === 'win32' ? 'msedge' : undefined;
 process.env.LOVEVERSE_E2E_DIR ||= path.join(tmpdir(), `loveverse-e2e-${randomUUID()}`);
 export default defineConfig({
   testDir: './tests/private-e2e',
@@ -14,7 +15,7 @@ export default defineConfig({
   globalTeardown: './tests/helpers/private-teardown.ts',
   use: {
     baseURL: 'http://127.0.0.1:3101',
-    channel: 'msedge',
+    channel: browserChannel,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },

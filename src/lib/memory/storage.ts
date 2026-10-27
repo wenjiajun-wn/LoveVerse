@@ -3,10 +3,13 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { AppError } from './errors';
-type Bucket = 'memories' | 'uploads' | 'backups' | 'auth' | 'sessions' | 'state';
-const buckets: Bucket[] = ['memories', 'uploads', 'backups', 'auth', 'sessions', 'state'];
+type Bucket = 'memories' | 'uploads' | 'backups' | 'auth' | 'sessions' | 'state' | 'sealed';
+const buckets: Bucket[] = ['memories', 'uploads', 'backups', 'auth', 'sessions', 'state', 'sealed'];
 export function storageRoot() {
-  const root = path.resolve(/* turbopackIgnore: true */ process.env.LOVEVERSE_DATA_DIR || path.join(process.cwd(), 'private'));
+  const root = path.resolve(
+    /* turbopackIgnore: true */ process.env.LOVEVERSE_DATA_DIR ||
+      path.join(process.cwd(), 'private'),
+  );
   const forbidden = ['public', '.next', '.git', 'src', 'node_modules'].map((p) =>
     path.join(/* turbopackIgnore: true */ process.cwd(), p).toLowerCase(),
   );

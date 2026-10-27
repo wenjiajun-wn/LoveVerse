@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+const browserChannel = process.platform === 'win32' ? 'msedge' : undefined;
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -7,10 +8,10 @@ export default defineConfig({
   reporter: 'list',
   use: { baseURL: 'http://127.0.0.1:3100', trace: 'on-first-retry' },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: 'msedge' } },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], channel: browserChannel } },
     {
       name: 'mobile',
-      use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium', channel: 'msedge' },
+      use: { ...devices['iPhone 13'], defaultBrowserType: 'chromium', channel: browserChannel },
     },
   ],
   webServer: {
