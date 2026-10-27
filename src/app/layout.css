@@ -1,0 +1,82 @@
+/* 统一桌面容器与边距；手机继续使用原有页面布局。 */
+@media (min-width: 768px) {
+  .app-shell .site-header {
+    width: 100%;
+    max-width: var(--layout-max);
+    padding-inline: var(--layout-gutter);
+    margin-inline: auto;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+  .app-shell .site-header nav {
+    min-width: 0;
+    gap: clamp(12px, 1.3vw, 22px);
+    justify-content: center;
+  }
+  .app-shell .brand,
+  .app-shell .couple-badge {
+    flex-shrink: 0;
+  }
+  .app-shell .hero,
+  .app-shell .explore-section,
+  .app-shell .page-section {
+    padding-inline: var(--layout-gutter);
+  }
+  .app-shell .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 24px;
+  }
+  .app-shell .hero-copy,
+  .app-shell .universe-map {
+    min-width: 0;
+  }
+  .app-shell .hero-actions {
+    flex-wrap: wrap;
+  }
+  .app-shell .section-heading {
+    gap: 24px;
+  }
+  .app-shell .section-heading > div {
+    min-width: 0;
+  }
+  .app-shell .game-grid,
+  .app-shell .explore-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .app-shell > footer {
+    width: calc(min(100%, var(--layout-max)) - var(--layout-gutter) * 2);
+    margin-inline: auto;
+    flex-shrink: 0;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+}
+/* 八个入口在小桌面独占一行，避免与品牌和情侣标识互相挤压。 */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .app-shell .site-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    height: auto;
+    padding-top: 24px;
+    gap: 16px 24px;
+  }
+  .app-shell .site-header nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    height: 52px;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .app-shell .site-header nav a {
+    font-size: 12px;
+  }
+  .app-shell .site-header nav a.active::after {
+    bottom: 0;
+  }
+  .app-shell .couple-badge {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

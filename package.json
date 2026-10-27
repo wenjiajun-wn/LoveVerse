@@ -11,7 +11,11 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "private:setup": "node --env-file-if-exists=.env.local scripts/setup-private.mjs",
+    "test:e2e:private": "playwright test --config playwright.private.config.ts",
+    "test:build-privacy": "node scripts/check-build-privacy.mjs",
+    "test:agent-bundle": "node --env-file-if-exists=.env.local scripts/check-agent-bundle.mjs"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +26,13 @@
     "next": "^16.4.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "three": "^0.186.1"
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "server-only": "^0.0.1",
+    "sharp": "^0.35.5",
+    "three": "^0.186.1",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

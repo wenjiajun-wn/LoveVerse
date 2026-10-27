@@ -3,9 +3,16 @@ import { useEffect, useState } from 'react';
 import { Heart, Plus, Trash2 } from 'lucide-react';
 import { couple } from '@/data/demo';
 import { dateValue, daysBetween, nextAnniversary, todayInShanghai } from '@/lib/dates';
+import { useMemories } from './memory-provider';
+import { api } from '@/lib/client-api';
 type Anniversary = { id: string; title: string; date: string; yearly: boolean };
 const KEY = 'loveverse.anniversaries.v1';
 export function Anniversaries() {
+  const { mode } = useMemories();
+  const [revision, setRevision] = useState('');
+  const [imported, setImported] = useState(false);
+  const [legacy, setLegacy] = useState<Anniversary[]>([]);
+  const [busy, setBusy] = useState(false);
   const [today, setToday] = useState('');
   const [items, setItems] = useState<Anniversary[]>([]);
   const [error, setError] = useState('');
@@ -17,26 +24,69 @@ export function Anniversaries() {
     try {
       const data: unknown = JSON.parse(localStorage.getItem(KEY) || '[]');
       if (!Array.isArray(data)) throw Error();
-      setItems(
-        data.filter((x): x is Anniversary => {
-          try {
-            return (
-              typeof x.id === 'string' &&
-              typeof x.title === 'string' &&
-              typeof x.yearly === 'boolean' &&
-              Number.isFinite(dateValue(x.date))
-            );
-          } catch {
-            return false;
-          }
-        }),
-      );
+      const valid = data.filter((x): x is Anniversary => {
+        try {
+          return (
+            typeof x.id === 'string' &&
+            typeof x.title === 'string' &&
+            typeof x.yearly === 'boolean' &&
+            Number.isFinite(dateValue(x.date))
+          );
+        } catch {
+          return false;
+        }
+      });
+      if (mode === 'demo') setItems(valid);
+      else setLegacy(valid);
     } catch {
       setError('本地记录无法读取，你仍可以添加新的纪念日。');
     }
+    if (mode === 'private') {
+      let active = true;
+      const refresh = () => {
+        if (!document.hidden)
+          api<{ items: Anniversary[]; revision: string; imported: boolean }>('/api/anniversaries')
+            .then((data) => {
+              if (active) {
+                setItems(data.items);
+                setRevision(data.revision);
+                setImported(data.imported);
+              }
+            })
+            .catch((e) => {
+              if (active) setError(e.message);
+            });
+      };
+      refresh();
+      window.addEventListener('focus', refresh);
+      return () => {
+        active = false;
+        clearInterval(timer);
+        window.removeEventListener('focus', refresh);
+      };
+    }
     return () => clearInterval(timer);
-  }, []);
-  function save(next: Anniversary[]) {
+  }, [mode]);
+  async function save(next: Anniversary[]) {
+    if (mode === 'private') {
+      setBusy(true);
+      setError('');
+      try {
+        const data = await api<{ items: Anniversary[]; revision: string }>('/api/anniversaries', {
+          method: 'PUT',
+          body: JSON.stringify({ items: next, revision }),
+        });
+        setItems(data.items);
+        setRevision(data.revision);
+        setStatus('已保存到私人空间，其他设备重新加载后可见。');
+        return true;
+      } catch (e) {
+        setError(e instanceof Error ? e.message : '保存失败');
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    }
     setItems(next);
     try {
       localStorage.setItem(KEY, JSON.stringify(next));
@@ -45,6 +95,7 @@ export function Anniversaries() {
     } catch {
       setError('浏览器存储不可用，本次修改仅在当前页面有效。');
     }
+    return true;
   }
   const all = [
     { id: 'start', title: '我们的恋爱纪念日', date: couple.start, yearly: true },
@@ -59,6 +110,47 @@ export function Anniversaries() {
           <p>每一个值得期待的日子，都有你。</p>
         </div>
       </div>
+      {mode === 'private' && legacy.length > 0 && !imported && (
+        <div className="memory-banner">
+          <p>
+            发现此浏览器中 {legacy.length} 条旧版纪念日。导入会上传到私人空间，原浏览器记录会保留。
+          </p>
+          <button
+            className="primary"
+            disabled={busy}
+            onClick={async () => {
+              if (
+                !window.confirm(
+                  `确认把此浏览器的 ${legacy.length} 条纪念日导入私人空间？仅导入一次，不删除原记录。`,
+                )
+              )
+                return;
+              setBusy(true);
+              setError('');
+              try {
+                const data = await api<{
+                  items: Anniversary[];
+                  revision: string;
+                  imported: boolean;
+                }>('/api/anniversaries/import', {
+                  method: 'POST',
+                  body: JSON.stringify({ items: legacy, confirmed: true }),
+                });
+                setItems(data.items);
+                setRevision(data.revision);
+                setImported(data.imported);
+                setStatus('导入成功，原浏览器数据已保留。');
+              } catch (e) {
+                setError(e instanceof Error ? e.message : '导入失败');
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            确认导入旧版纪念日
+          </button>
+        </div>
+      )}
       <div className="days-banner">
         <Heart size={28} />
         <p>我们已经一起走过</p>
@@ -96,7 +188,11 @@ export function Anniversaries() {
                   <button
                     className="icon-button"
                     aria-label={`删除${item.title}`}
-                    onClick={() => save(items.filter((x) => x.id !== item.id))}
+                    disabled={busy || (mode === 'private' && !revision)}
+                    onClick={() => {
+                      if (mode === 'demo' || window.confirm(`确定删除纪念日「${item.title}」？`))
+                        void save(items.filter((x) => x.id !== item.id));
+                    }}
                   >
                     <Trash2 size={17} />
                   </button>
@@ -108,19 +204,20 @@ export function Anniversaries() {
       </div>
       <form
         className="anniversary-form"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          const data = new FormData(e.currentTarget);
+          const form = e.currentTarget;
+          const data = new FormData(form);
           const title = String(data.get('title')).trim();
           const date = String(data.get('date'));
           try {
             dateValue(date);
             if (!title) throw Error('请填写纪念日名称');
-            save([
+            const saved = await save([
               ...items,
               { id: crypto.randomUUID(), title, date, yearly: data.get('yearly') === 'on' },
             ]);
-            e.currentTarget.reset();
+            if (saved) form.reset();
           } catch (err) {
             setError(err instanceof Error ? err.message : '请检查输入');
           }
@@ -141,11 +238,19 @@ export function Anniversaries() {
           <label className="checkbox">
             <input type="checkbox" name="yearly" defaultChecked /> 每年重复
           </label>
-          <button className="primary" type="submit">
+          <button
+            className="primary"
+            type="submit"
+            disabled={busy || (mode === 'private' && !revision)}
+          >
             保存纪念日 <Plus size={16} />
           </button>
         </div>
-        <small>只保存在当前浏览器，不会同步给另一台设备。</small>
+        <small>
+          {mode === 'demo'
+            ? '只保存在当前浏览器，不会同步给另一台设备。'
+            : '保存在私人服务器；其他设备打开页面或重新聚焦后同步。原有浏览器记录不会被删除。'}
+        </small>
         <p role="status">{status}</p>
         {error && <p role="alert">{error}</p>}
       </form>

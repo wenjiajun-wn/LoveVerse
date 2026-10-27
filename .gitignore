@@ -6,6 +6,9 @@ out/
 private/
 public/private/
 *.private.*
+!/playwright.private.config.ts
 test-results/
 playwright-report/
 *.tsbuildinfo
+# V3 私人聊天导出不得进入公开仓库。
+*.chat-export.json

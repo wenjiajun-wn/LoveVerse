@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@import './memory.css';
+@import './agent.css';
+@import './layout.css';
 @theme inline {
   --color-ink: #f0edf9;
   --color-muted: #a8a5bd;
@@ -12,6 +15,8 @@
   --muted: #a8a5bd;
   --line: #ffffff14;
   --accent: #d0b8ff;
+  --layout-max: 1440px;
+  --layout-gutter: clamp(24px, 4vw, 64px);
 }
 * {
   box-sizing: border-box;
@@ -69,6 +74,8 @@ img {
   object-fit: cover;
 }
 .app-shell {
+  display: flex;
+  flex-direction: column;
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -188,8 +195,10 @@ nav a.active:after {
   white-space: nowrap;
 }
 main {
-  max-width: 1440px;
+  width: 100%;
+  max-width: var(--layout-max);
   margin: auto;
+  flex: 1;
 }
 .hero {
   min-height: 610px;
@@ -640,6 +649,8 @@ footer small {
 .page-section {
   padding: 65px 5%;
   min-height: 75dvh;
+  width: 100%;
+  margin-inline: auto;
 }
 .section-heading {
   display: flex;

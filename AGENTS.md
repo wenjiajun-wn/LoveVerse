@@ -10,3 +10,27 @@
 - 日期以 Asia/Shanghai 的日历日计算，闰日周年在平年取 2 月 28 日。
 - 验证：npm test、npm run typecheck、npm run build、npm run test:e2e。变更后的报告必须区分通过、失败和未执行。
 - 不自动提交、推送、发布或开公网隧道。
+
+## V2 私人数据边界
+
+- 默认公开 demo，真实内容只能在独立 private 环境运行。不能添加开发口令、测试认证后门或根据客户端参数切换模式。
+- 私人 API 必须通过 privateRoute / authenticate；业务服务必须验证 IdentityContext。Agent 只能访问 MemoryService 六个白名单方法，不得直连 repository/文件系统。
+- 不要将私人数据从服务器组件序列化进初始页面；通过认证后客户端 API 获取。禁止把私人图片放 public。
+- 服务端文件模块必须标记 server-only。客户端仅引入 model、adapter 和纯数据类型，不引入 repository、auth、uploads。
+- 维护 story 正文、扩展 metadata、createdAt 与 revision 的语义。更新和删除要验证 revision；删除必须明确确认。
+- 写入保持 withLock + 原子临时文件 + rename + 备份；不得静默覆盖损坏记录或自动清除残留锁。
+- 上传限制真实格式、大小、像素、重新编码和元数据去除；任何图片 GET 都必须鉴权，响应 no-store。
+- 纪念日导入必须显式 confirmed、一次性标记和去重，绝不清除旧版 localStorage。
+- 使用临时目录和虚构账号测试，不对真实 private/ 目录运行测试、格式化、批量删除或重建。
+- V2 验证顺序：npm test → npm run typecheck → npm run build → npm test，再运行 npm run test:e2e 与 npm run test:e2e:private。
+- 不把账号初始化输出、密码、会话令牌、私有原文、测试 trace 中的真实内容写入报告。
+
+## V3 Agent 边界
+
+- 用户已授权无需账号的公开 AI 演示；仅在 demo 模式并显式启用 LOVEVERSE_AI_PUBLIC_DEMO 后，通过独立入口读取 demo.ts 的公开故事。该例外不适用于任何私人 API/回忆/照片。公开费用限额独立持久化。
+- AI 默认关闭；双人共同启用、逐条当前 revision 授权后才可外发。secret/禁止第三方记录始终阻止；照片不发给模型。
+- Agent 只通过 MemoryService 的只读方法访问数据，不直接读取回忆文件或调用写工具。每次工具/模型/回复前复查授权。
+- DeepSeek 密钥仅在 server-only Provider，固定官方 HTTPS origin，不跟随重定向。禁止客户端选择模型 URL 或用户身份。
+- 引用必须绑定本次检索片段；事实须可在来源原文核验。总结需标注推断，不透传 reasoning_content。
+- 不记录提示词、私密文本、聊天或密钥。浏览器测试强制空密钥，模型使用 Mock；真实云端联调须明确区分。
+- 构建前先停止同目录旧生产服务，构建后重新启动，防止静态资源版本错配。

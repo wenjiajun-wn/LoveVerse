@@ -14,6 +14,12 @@ export default defineConfig({
     },
   ],
   webServer: {
+    env: {
+      LOVEVERSE_MODE: 'demo',
+      LOVEVERSE_AI_ENABLED: 'true',
+      LOVEVERSE_AI_PUBLIC_DEMO: 'true',
+      DEEPSEEK_API_KEY: '',
+    },
     command: 'node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3100',
     url: 'http://127.0.0.1:3100',
     reuseExistingServer: false,

@@ -5,3 +5,8 @@ test-results
 playwright-report
 public
 *.tsbuildinfo
+private
+public/private
+.env*
+*.private.*
+!/playwright.private.config.ts

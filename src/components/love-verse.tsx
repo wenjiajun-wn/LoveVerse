@@ -12,8 +12,13 @@ import {
   CalendarHeart,
   Gamepad2,
   Home,
+  BookHeart,
 } from 'lucide-react';
-import { memories, couple, type Memory } from '@/data/demo';
+import { couple } from '@/data/demo';
+import type { MemoryView } from '@/lib/memory/adapter';
+import { useMemories } from './memory-provider';
+import { MemoryManager } from './memory-manager';
+import { LoveAgent } from './love-agent';
 import { daysBetween, todayInShanghai } from '@/lib/dates';
 import { Starfield } from './starfield';
 import { Memories, MemoryDetail } from './memories';
@@ -26,11 +31,17 @@ const tabs = [
   { id: 'timeline', title: '时间轴', icon: Route },
   { id: 'dates', title: '纪念日', icon: CalendarHeart },
   { id: 'games', title: '情侣小游戏', icon: Gamepad2 },
+  { id: 'diary', title: '恋爱日记', icon: BookHeart },
+  { id: 'agent', title: 'AI 回忆助手', icon: Sparkles },
 ] as const;
 type Tab = (typeof tabs)[number]['id'];
 export function LoveVerse() {
+  const { memories, mode } = useMemories();
+  const [planetPage, setPlanetPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(memories.length / 6));
+  const currentPage = Math.min(planetPage, pageCount - 1);
   const [tab, setTab] = useState<Tab>('home');
-  const [selected, setSelected] = useState<Memory | null>(null);
+  const [selected, setSelected] = useState<MemoryView | null>(null);
   const [days, setDays] = useState<number | null>(null);
   useEffect(() => {
     const sync = () => {
@@ -130,10 +141,18 @@ export function LoveVerse() {
                     <button
                       className="primary"
                       onClick={() =>
-                        tab === 'home' ? navigate('universe') : setSelected(memories[0])
+                        tab === 'home'
+                          ? navigate('universe')
+                          : memories[0]
+                            ? setSelected(memories[0])
+                            : navigate('diary')
                       }
                     >
-                      {tab === 'home' ? '进入我们的宇宙' : '从第一颗星球开始'}
+                      {tab === 'home'
+                        ? '进入我们的宇宙'
+                        : memories.length
+                          ? '从第一颗星球开始'
+                          : '写下第一段回忆'}
                       <ArrowRight size={17} />
                     </button>
                     <button className="text-button" onClick={() => navigate('timeline')}>
@@ -162,7 +181,7 @@ export function LoveVerse() {
                       <Heart size={13} /> OUR LITTLE UNIVERSE
                     </div>
                   </div>
-                  {memories.map((m, i) => (
+                  {memories.slice(currentPage * 6, currentPage * 6 + 6).map((m, i) => (
                     <button
                       className={`memory-planet planet-${i} ${m.color}`}
                       key={m.id}
@@ -180,7 +199,32 @@ export function LoveVerse() {
                   <span className="map-star star-two">✦</span>
                   <span className="map-star star-three">+</span>
                   <div className="map-note">
-                    <span className="live-dot" /> 点击星球，拾起一段我们的回忆
+                    {pageCount > 1 ? (
+                      <div className="planet-pagination">
+                        <button
+                          disabled={currentPage === 0}
+                          onClick={() => setPlanetPage(currentPage - 1)}
+                        >
+                          上一组
+                        </button>
+                        <span>
+                          {currentPage + 1} / {pageCount}
+                        </span>
+                        <button
+                          disabled={currentPage === pageCount - 1}
+                          onClick={() => setPlanetPage(currentPage + 1)}
+                        >
+                          下一组
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="live-dot" />
+                        {memories.length
+                          ? '点击星球，拾起一段我们的回忆'
+                          : '还没有回忆，第一颗星球等待被点亮'}
+                      </>
+                    )}
                   </div>
                 </div>
                 <span className="hero-index">CHAPTER 01 / OUR UNIVERSE</span>
@@ -244,6 +288,10 @@ export function LoveVerse() {
             <Memories timeline />
           ) : tab === 'dates' ? (
             <Anniversaries />
+          ) : tab === 'diary' ? (
+            <MemoryManager />
+          ) : tab === 'agent' ? (
+            <LoveAgent />
           ) : (
             <Games />
           )}
@@ -255,7 +303,9 @@ export function LoveVerse() {
           <span>
             MADE OF LITTLE MOMENTS & BIG LOVE <Heart size={12} />
           </span>
-          <small>演示宇宙 · {couple.names}</small>
+          <small>
+            {mode === 'demo' ? `演示宇宙 · ${couple.names}` : '私人宇宙 · 仅空间成员可见'}
+          </small>
         </footer>
         {selected && <MemoryDetail memory={selected} onClose={() => setSelected(null)} />}
       </div>
