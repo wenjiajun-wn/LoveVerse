@@ -33,7 +33,10 @@
   font-size: 12px;
 }
 .memory-banner {
-  padding: 18px 0;
+  padding: 20px 24px;
+  border-left: 2px solid var(--accent);
+  background: var(--surface);
+  max-inline-size: 68ch;
   color: var(--muted);
   line-height: 1.9;
 }
@@ -90,15 +93,18 @@ button:disabled {
   padding: 24px;
   border: 1px solid var(--line);
   background: #151522;
-  border-radius: 8px;
+  border-radius: var(--radius-card);
+}
+.memory-search > * {
+  min-width: 0;
 }
 .memory-search select,
 .memory-editor select {
   min-height: 43px;
   color: var(--ink);
   background: #0e101b;
-  border: 1px solid #ffffff26;
-  border-radius: 4px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-control);
   padding: 10px;
   width: 100%;
 }
@@ -109,7 +115,7 @@ button:disabled {
 .diary-list article {
   border: 1px solid var(--line);
   background: #151522;
-  border-radius: 8px;
+  border-radius: var(--radius-card);
   padding: 24px;
 }
 .diary-open {
@@ -165,7 +171,7 @@ button:disabled {
 }
 .memory-editor textarea {
   resize: vertical;
-  border: 1px solid #ffffff26;
+  border: 1px solid var(--control-line);
   border-radius: 4px;
   padding: 14px;
   background: #0e101b;
@@ -248,7 +254,7 @@ button:disabled {
 }
 .photo-picker > small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.9;
   margin: 12px 0;
@@ -273,19 +279,19 @@ button:disabled {
   height: 100px;
 }
 .photo-picker-grid span {
-  font-size: 10px;
+  font-size: 12px;
   display: block;
   padding: 8px;
 }
 .photo-picker-grid label {
   margin-top: 8px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .photo-picker-grid input {
   padding: 8px !important;
 }
 .photo-picker-grid .text-button {
-  font-size: 10px;
+  font-size: 12px;
 }
 .planet-pagination {
   display: flex;
@@ -294,7 +300,7 @@ button:disabled {
 }
 .planet-pagination button {
   background: #151522;
-  border: 1px solid #ffffff26;
+  border: 1px solid var(--control-line);
   border-radius: 4px;
   padding: 8px 12px;
   min-height: 36px;
@@ -312,20 +318,11 @@ mark {
   margin-top: 20px;
 }
 @media (min-width: 768px) and (max-width: 1100px) {
-  .site-header nav {
-    gap: 13px;
-  }
   .couple-badge > small {
     display: none;
   }
 }
 @media (max-width: 767px) {
-  .site-header nav a {
-    font-size: 9px;
-  }
-  .site-header nav {
-    padding: 0 2%;
-  }
   .memory-search {
     grid-template-columns: 1fr 1fr;
     padding: 18px;

@@ -350,9 +350,11 @@ describe('只读工具与证据回答', () => {
       code: 'UNAUTHORIZED',
     });
     process.env.LOVEVERSE_AI_ENABLED = 'false';
+    const disabledModel = model();
     await expect(
-      answerQuestion(partner, { message: '山' }, signal(), model()),
+      answerQuestion(partner, { message: '山' }, signal(), disabledModel),
     ).rejects.toMatchObject({ code: 'CONSENT' });
+    expect(disabledModel.complete).not.toHaveBeenCalled();
   });
   it('失败不影响 V2，持久化限流无法通过重启重置', async () => {
     const r = await repository.create(data);

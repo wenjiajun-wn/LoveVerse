@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMemories } from './memory-provider';
 import { api } from '@/lib/client-api';
 import { MemoryEditor } from './memory-editor';
@@ -19,6 +19,13 @@ export function Highlight({ text, query }: { text: string; query: string }) {
 }
 export function MemoryManager() {
   const { mode, records, reload, user, logout } = useMemories();
+  const searchVersion = useRef(0);
+  useEffect(
+    () => () => {
+      searchVersion.current++;
+    },
+    [],
+  );
   const [editing, setEditing] = useState<MemoryRecord | 'new' | null>(null);
   const [detail, setDetail] = useState<MemoryRecord | null>(null);
   const [results, setResults] = useState<MemoryRecord[] | null>(null);
@@ -27,6 +34,8 @@ export function MemoryManager() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const afterSave = async () => {
+    searchVersion.current++;
+    setBusy(false);
     setResults(null);
     await reload();
     setStatus('回忆已保存，星球、相册与时间轴已更新。');
@@ -73,18 +82,22 @@ export function MemoryManager() {
           e.preventDefault();
           setBusy(true);
           setError('');
+          const version = ++searchVersion.current;
           const fields = new FormData(e.currentTarget);
           const params = new URLSearchParams();
           fields.forEach((v, k) => {
             if (String(v).trim()) params.set(k, String(v).trim());
           });
           try {
-            setResults(await api<MemoryRecord[]>(`/api/memories?${params}`));
+            const found = await api<MemoryRecord[]>(`/api/memories?${params}`);
+            if (version !== searchVersion.current) return;
+            setResults(found);
             setQuery(String(fields.get('q') || ''));
           } catch (err) {
-            setError(err instanceof Error ? err.message : '搜索失败');
+            if (version === searchVersion.current)
+              setError(err instanceof Error ? err.message : '搜索失败');
           } finally {
-            setBusy(false);
+            if (version === searchVersion.current) setBusy(false);
           }
         }}
       >
@@ -129,6 +142,8 @@ export function MemoryManager() {
           className="text-button"
           type="reset"
           onClick={() => {
+            searchVersion.current++;
+            setBusy(false);
             setResults(null);
             setQuery('');
             setError('');
@@ -216,7 +231,12 @@ export function MemoryManager() {
           onSaved={afterSave}
         />
       )}
-      {detail && <MemoryDetail memory={toMemoryView(detail)} onClose={() => setDetail(null)} />}
+      {detail && records.some((r) => r.id === detail.id) && (
+        <MemoryDetail
+          memory={toMemoryView(records.find((r) => r.id === detail.id)!)}
+          onClose={() => setDetail(null)}
+        />
+      )}
     </section>
   );
 }

@@ -2,9 +2,13 @@
 import { useState } from 'react';
 import { HeartHandshake, Sparkles, Gift, ArrowRight } from 'lucide-react';
 import { memoryQuestions, preferenceQuestions, surprises } from '@/data/demo';
+import { useMemories } from './memory-provider';
+import { memoryQuiz, type MemoryQuestion } from '@/lib/memory/quiz';
 import { Modal } from './modal';
 type Game = 'match' | 'quiz' | 'box';
 export function Games() {
+  const { mode, memories } = useMemories();
+  const [questions, setQuestions] = useState<MemoryQuestion[]>([]);
   const [game, setGame] = useState<Game | null>(null);
   const [round, setRound] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
@@ -13,6 +17,7 @@ export function Games() {
   const [gift, setGift] = useState('');
   const [feedback, setFeedback] = useState('');
   function start(type: Game) {
+    setQuestions(mode === 'demo' ? memoryQuestions : memoryQuiz(memories));
     setGame(type);
     setRound(0);
     setAnswers([]);
@@ -22,14 +27,14 @@ export function Games() {
     setFeedback('');
   }
   const complete =
-    game === 'quiz' ? round >= memoryQuestions.length : round >= preferenceQuestions.length * 2;
+    game === 'quiz' ? round >= questions.length : round >= preferenceQuestions.length * 2;
   function answer(index: number) {
     if (game === 'quiz') {
-      if (index === memoryQuestions[round].answer) setScore((s) => s + 1);
+      if (index === questions[round].answer) setScore((s) => s + 1);
       setFeedback(
-        index === memoryQuestions[round].answer
+        index === questions[round].answer
           ? '答对了，这份回忆被好好收藏着。'
-          : `这次的答案是：${memoryQuestions[round].options[memoryQuestions[round].answer]}`,
+          : `这次的答案是：${questions[round].options[questions[round].answer]}`,
       );
     } else {
       if (round < 3) {
@@ -104,6 +109,14 @@ export function Games() {
                   {gift ? '再抽一个' : '拆开盲盒'} <Sparkles size={17} />
                 </button>
               </>
+            ) : game === 'quiz' && questions.length === 0 ? (
+              <>
+                <h2>还需要一些真实回忆</h2>
+                <p>请先在恋爱日记保存至少三个不同日期的回忆，再来回顾你们的故事。</p>
+                <a href="#diary" onClick={() => setGame(null)}>
+                  去写恋爱日记
+                </a>
+              </>
             ) : handoff ? (
               <>
                 <HeartHandshake size={48} />
@@ -137,11 +150,11 @@ export function Games() {
                   {(round % 3) + 1} / 3
                 </span>
                 <h2>
-                  {(game === 'quiz' ? memoryQuestions[round] : preferenceQuestions[round % 3]).text}
+                  {(game === 'quiz' ? questions[round] : preferenceQuestions[round % 3]).text}
                 </h2>
                 <div className="answers">
                   {(game === 'quiz'
-                    ? memoryQuestions[round]
+                    ? questions[round]
                     : preferenceQuestions[round % 3]
                   ).options.map((option, index) => (
                     <button key={option} onClick={() => answer(index)}>

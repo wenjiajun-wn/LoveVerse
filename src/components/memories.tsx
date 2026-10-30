@@ -38,7 +38,7 @@ export function MemoryDetail({
               aria-pressed={i === photoIndex}
               onClick={() => setPhotoIndex(i)}
             >
-              <img src={p.url} alt={p.alt} />
+              <img src={p.url} alt={p.alt} loading="lazy" decoding="async" />
             </button>
           ))}
         </div>
@@ -110,7 +110,7 @@ export function Memories({ timeline = false }: { timeline?: boolean }) {
           >
             {timeline && (
               <div className="timeline-date">
-                <span>0{i + 1}</span>
+                <span>{String(i + 1).padStart(2, '0')}</span>
                 {m.date}
               </div>
             )}
@@ -135,7 +135,12 @@ export function Memories({ timeline = false }: { timeline?: boolean }) {
       {items.length === 0 && (
         <p className="memory-banner">这里暂时没有回忆。前往“恋爱日记”添加，或调整分类。</p>
       )}
-      {selected && <MemoryDetail memory={selected} onClose={() => setSelected(null)} />}
+      {selected && memories.some((m) => m.id === selected.id) && (
+        <MemoryDetail
+          memory={memories.find((m) => m.id === selected.id)!}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </section>
   );
 }

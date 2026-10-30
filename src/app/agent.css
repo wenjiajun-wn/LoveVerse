@@ -18,8 +18,8 @@
 .agent-composer {
   padding: 26px;
   border: 1px solid #ffffff18;
-  border-radius: 20px;
-  background: #17182bb3;
+  border-radius: var(--radius-card);
+  background: var(--surface);
   margin-bottom: 20px;
 }
 .agent-panel p,
@@ -145,25 +145,7 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-@media (max-width: 1100px) and (min-width: 768px) {
-  .site-header nav {
-    gap: 12px;
-  }
-  .site-header nav a {
-    font-size: 11px;
-  }
-}
 @media (max-width: 767px) {
-  .site-header nav {
-    overflow-x: auto;
-    justify-content: flex-start;
-    gap: 0;
-  }
-  .site-header nav a {
-    flex: 0 0 12.5%;
-    min-width: 46px;
-    font-size: 8px;
-  }
   .agent-panel,
   .agent-composer {
     padding: 18px;

@@ -1,5 +1,6 @@
 .v4-page {
   display: grid;
+  align-content: start;
   gap: 25px;
   padding-bottom: 80px;
 }
@@ -30,9 +31,9 @@
 .v4-book-editor select {
   width: 100%;
   background: #101426;
-  border: 1px solid #ffffff33;
+  border: 1px solid var(--control-line);
   color: #f0edf9;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   padding: 12px;
 }
 .book-preview {
@@ -98,8 +99,8 @@
 }
 .v4-card {
   border: 1px solid #ffffff1d;
-  background: #151627ec;
-  border-radius: 22px;
+  background: var(--surface);
+  border-radius: var(--radius-card);
   padding: clamp(20px, 3vw, 32px);
   display: flex;
   flex-direction: column;
@@ -131,8 +132,8 @@
 .v4-modal textarea {
   width: 100%;
   background: #0d1020;
-  border: 1px solid #ffffff33;
-  border-radius: 10px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-control);
   padding: 12px;
   color: #f9f3ff;
   font: inherit;
@@ -182,7 +183,7 @@
 }
 .v4-fields {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 .v4-link {
@@ -191,7 +192,7 @@
 }
 .v4-message {
   border: 1px solid #947cc2;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   padding: 12px;
 }
 .v4-error {
@@ -224,10 +225,10 @@
   background: #17182a;
   color: #f0edf9;
   padding: 24px;
-  border: 1px solid #ffffff33;
-  border-radius: 20px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-card);
   width: min(940px, 100%);
-  max-height: 92vh;
+  max-height: calc(100dvh - 32px);
   overflow: auto;
   display: grid;
   gap: 15px;
@@ -275,7 +276,7 @@
 .v4-photo-grid img {
   aspect-ratio: 4/3;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
 }
 @media (max-width: 800px) {
   .v4-page .v4-tabs {
@@ -323,5 +324,24 @@
     border: 0;
     max-height: unset;
     overflow: visible;
+  }
+}
+
+.v4-page .section-heading {
+  margin-bottom: 0;
+}
+.v4-fields > label {
+  min-width: 0;
+}
+@media (max-width: 480px) {
+  .v4-fields {
+    grid-template-columns: 1fr;
+  }
+  .v4-modal {
+    padding: 16px;
+    width: calc(100% - 24px);
+  }
+  .v4-item {
+    flex-wrap: wrap;
   }
 }

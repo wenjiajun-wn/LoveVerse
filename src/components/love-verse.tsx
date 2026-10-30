@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, MotionConfig } from 'motion/react';
 import {
   Orbit,
@@ -15,7 +15,6 @@ import {
   BookHeart,
   WandSparkles,
 } from 'lucide-react';
-import { couple } from '@/data/demo';
 import type { MemoryView } from '@/lib/memory/adapter';
 import { useMemories } from './memory-provider';
 import { MemoryManager } from './memory-manager';
@@ -39,10 +38,12 @@ const tabs = [
 ] as const;
 type Tab = (typeof tabs)[number]['id'];
 export function LoveVerse() {
-  const { memories, mode } = useMemories();
+  const { memories, mode, couple } = useMemories();
+  const cardPhotos = memories.filter((memory) => memory.image).slice(0, 3);
   const [planetPage, setPlanetPage] = useState(0);
   const pageCount = Math.max(1, Math.ceil(memories.length / 6));
   const currentPage = Math.min(planetPage, pageCount - 1);
+  const navigation = useRef<HTMLElement>(null);
   const [tab, setTab] = useState<Tab>('home');
   const [selected, setSelected] = useState<MemoryView | null>(null);
   const [days, setDays] = useState<number | null>(null);
@@ -54,14 +55,20 @@ export function LoveVerse() {
     };
     sync();
     window.addEventListener('hashchange', sync);
-    const update = () => setDays(Math.max(0, daysBetween(couple.start, todayInShanghai())));
+    const update = () =>
+      setDays(couple.start ? Math.max(0, daysBetween(couple.start, todayInShanghai())) : null);
     update();
     const timer = setInterval(update, 30000);
     return () => {
       window.removeEventListener('hashchange', sync);
       clearInterval(timer);
     };
-  }, []);
+  }, [couple.start]);
+  useEffect(() => {
+    navigation.current
+      ?.querySelector('[aria-current="page"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [tab]);
   function navigate(value: Tab) {
     setTab(value);
     location.hash = value;
@@ -86,7 +93,13 @@ export function LoveVerse() {
               LoveVerse<small>恋 爱 宇 宙</small>
             </span>
           </a>
-          <nav aria-label="主导航">
+          <nav
+            ref={navigation}
+            aria-label="主导航"
+            onFocusCapture={(event) =>
+              event.target.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+            }
+          >
             {tabs.map(({ id, title, icon: Icon }) => (
               <a
                 href={`#${id}`}
@@ -101,10 +114,10 @@ export function LoveVerse() {
             ))}
           </nav>
           <div className="couple-badge">
-            <span>宇</span>
-            <span>星</span>
+            <span>{mode === 'demo' ? '宇' : '♡'}</span>
+            <span>{mode === 'demo' ? '星' : '♡'}</span>
             <Heart size={11} />
-            <small>我们的专属空间</small>
+            <small>{couple.names || '请设置情侣称呼'}</small>
           </div>
         </header>
         <main id="main">
@@ -168,7 +181,11 @@ export function LoveVerse() {
                     </span>
                     <span>
                       已经一起走过 <strong>{days ?? '—'}</strong> 天
-                      <small>始于 {couple.start.replaceAll('-', '.')}，不止于朝夕。</small>
+                      <small>
+                        {couple.start
+                          ? `始于 ${couple.start.replaceAll('-', '.')}，不止于朝夕。`
+                          : '尚未设置相恋日期，请在服务器配置后重启。'}
+                      </small>
                     </span>
                   </div>
                 </motion.div>
@@ -267,9 +284,18 @@ export function LoveVerse() {
                       sub: '一点默契，一点惊喜，很多喜欢',
                       image: '/demo/night.jpg',
                     },
-                  ].map(({ id, icon: Icon, n, title, sub, image }) => (
+                  ].map(({ id, icon: Icon, n, title, sub, image }, index) => (
                     <button className="explore-card" key={id} onClick={() => navigate(id)}>
-                      <img src={image} alt="" />
+                      {(mode === 'demo' ? image : cardPhotos[index]?.image) ? (
+                        <img
+                          src={mode === 'demo' ? image : cardPhotos[index].image}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <span className="photo-placeholder">等待你们的真实照片</span>
+                      )}
                       <div className="explore-overlay" />
                       <div className="explore-top">
                         <Icon size={20} />
@@ -312,7 +338,12 @@ export function LoveVerse() {
             {mode === 'demo' ? `演示宇宙 · ${couple.names}` : '私人宇宙 · 仅空间成员可见'}
           </small>
         </footer>
-        {selected && <MemoryDetail memory={selected} onClose={() => setSelected(null)} />}
+        {selected && memories.some((m) => m.id === selected.id) && (
+          <MemoryDetail
+            memory={memories.find((m) => m.id === selected.id)!}
+            onClose={() => setSelected(null)}
+          />
+        )}
       </div>
     </MotionConfig>
   );

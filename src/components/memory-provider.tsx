@@ -8,14 +8,16 @@ import {
   useRef,
   useState,
 } from 'react';
-import { memories as demoMemories } from '@/data/demo';
+import { couple as demoCouple, memories as demoMemories } from '@/data/demo';
 import { api } from '@/lib/client-api';
 import { toMemoryView, type MemoryView } from '@/lib/memory/adapter';
+import type { CoupleProfile } from '@/lib/couple';
 import type { MemoryRecord } from '@/lib/memory/model';
 import { Starfield } from './starfield';
 type MemoryState = {
   mode: 'demo' | 'private';
   user: string | null;
+  couple: CoupleProfile;
   records: MemoryRecord[];
   memories: MemoryView[];
   reload: () => Promise<void>;
@@ -35,6 +37,7 @@ export function MemoryProvider({
   children: React.ReactNode;
 }) {
   const [user, setUser] = useState<string | null>(null);
+  const [couple, setCouple] = useState<CoupleProfile>({ names: null, start: null });
   const [records, setRecords] = useState<MemoryRecord[]>([]);
   const [checking, setChecking] = useState(mode === 'private');
   const [error, setError] = useState('');
@@ -43,28 +46,32 @@ export function MemoryProvider({
   const clear = useCallback(() => {
     generation.current++;
     setUser(null);
+    setCouple({ names: null, start: null });
     setRecords([]);
     setChecking(false);
   }, []);
   const reload = useCallback(async () => {
-    const current = generation.current;
+    const current = ++generation.current;
     const data = await api<MemoryRecord[]>('/api/memories');
     if (current === generation.current) setRecords(data);
   }, []);
   const check = useCallback(async () => {
-    const current = generation.current;
+    const current = ++generation.current;
     try {
-      const session = await api<{ user: { email: string } }>('/api/auth/session');
+      const session = await api<{ user: { email: string }; couple: CoupleProfile }>(
+        '/api/auth/session',
+      );
       if (current !== generation.current) return;
       const data = await api<MemoryRecord[]>('/api/memories');
       if (current !== generation.current) return;
       setUser(session.user.email);
+      setCouple(session.couple);
       setRecords(data);
       setError('');
     } catch (e) {
-      setError(e instanceof Error ? e.message : '加载失败');
+      if (current === generation.current) setError(e instanceof Error ? e.message : '加载失败');
     } finally {
-      setChecking(false);
+      if (current === generation.current) setChecking(false);
     }
   }, []);
   useEffect(() => {
@@ -160,7 +167,17 @@ export function MemoryProvider({
       </div>
     );
   return (
-    <Context.Provider value={{ mode, user, records, memories, reload, logout }}>
+    <Context.Provider
+      value={{
+        mode,
+        user,
+        couple: mode === 'demo' ? demoCouple : couple,
+        records,
+        memories,
+        reload,
+        logout,
+      }}
+    >
       {error && mode === 'private' && (
         <p className="memory-banner" role="alert">
           {error}

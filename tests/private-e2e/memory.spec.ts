@@ -17,6 +17,7 @@ test('未登录时私人页面无正文，所有接口和照片拒绝访问', as
   await expect(page.getByRole('button', { name: '登录私人空间' })).toBeVisible();
   await expect(page.getByRole('navigation')).toHaveCount(0);
   for (const url of [
+    '/api/auth/session',
     '/api/memories',
     '/api/anniversaries',
     '/api/uploads',
@@ -49,6 +50,14 @@ test('日记 CRUD、图片上传、搜索、详情与删除确认', async ({ pag
     fullPage: true,
   });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  for (const name of ['照片墙', '时间轴']) {
+    await page.getByRole('link', { name, exact: true }).click();
+    await expect(page.getByRole('heading', { name: '浏览器测试的海风' })).toBeVisible();
+  }
+  await page.getByRole('link', { name: '恋爱宇宙', exact: true }).click();
+  await expect(page.getByRole('button', { name: /探索.*浏览器测试的海风/ })).toBeVisible();
+  await openDiary(page);
+
   await page.getByLabel('搜索回忆').fill('海风');
   await page.getByRole('button', { name: '搜索', exact: true }).click();
   await expect(page.locator('mark').first()).toHaveText('海风');
@@ -61,12 +70,22 @@ test('日记 CRUD、图片上传、搜索、详情与删除确认', async ({ pag
   await page.getByLabel('标题', { exact: true }).fill('已编辑的海风');
   await page.getByRole('button', { name: '保存回忆' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
+  for (const name of ['照片墙', '时间轴']) {
+    await page.getByRole('link', { name, exact: true }).click();
+    await expect(page.getByRole('heading', { name: '已编辑的海风' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '浏览器测试的海风' })).toHaveCount(0);
+  }
+  await openDiary(page);
   page.once('dialog', (dialog) => dialog.dismiss());
   await page.getByRole('button', { name: '删除回忆', exact: true }).click();
   await expect(page.getByRole('heading', { name: '已编辑的海风' })).toBeVisible();
   page.once('dialog', (dialog) => dialog.accept());
   await page.getByRole('button', { name: '删除回忆', exact: true }).click();
   await expect(page.getByRole('heading', { name: '已编辑的海风' })).toHaveCount(0);
+  for (const name of ['照片墙', '时间轴']) {
+    await page.getByRole('link', { name, exact: true }).click();
+    await expect(page.getByRole('heading', { name: '已编辑的海风' })).toHaveCount(0);
+  }
 });
 test('七段真实回忆星图分页且旧页面动态显示', async ({ page, request }) => {
   await login(page);

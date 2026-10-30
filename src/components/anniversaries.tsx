@@ -1,14 +1,15 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Heart, Plus, Trash2 } from 'lucide-react';
-import { couple } from '@/data/demo';
 import { dateValue, daysBetween, nextAnniversary, todayInShanghai } from '@/lib/dates';
 import { useMemories } from './memory-provider';
 import { api } from '@/lib/client-api';
 type Anniversary = { id: string; title: string; date: string; yearly: boolean };
 const KEY = 'loveverse.anniversaries.v1';
 export function Anniversaries() {
-  const { mode } = useMemories();
+  const { mode, couple } = useMemories();
+  const requestVersion = useRef(0);
+  const writing = useRef(false);
   const [revision, setRevision] = useState('');
   const [imported, setImported] = useState(false);
   const [legacy, setLegacy] = useState<Anniversary[]>([]);
@@ -44,17 +45,19 @@ export function Anniversaries() {
     if (mode === 'private') {
       let active = true;
       const refresh = () => {
+        if (document.hidden || writing.current) return;
+        const version = ++requestVersion.current;
         if (!document.hidden)
           api<{ items: Anniversary[]; revision: string; imported: boolean }>('/api/anniversaries')
             .then((data) => {
-              if (active) {
+              if (active && version === requestVersion.current) {
                 setItems(data.items);
                 setRevision(data.revision);
                 setImported(data.imported);
               }
             })
             .catch((e) => {
-              if (active) setError(e.message);
+              if (active && version === requestVersion.current) setError(e.message);
             });
       };
       refresh();
@@ -69,6 +72,8 @@ export function Anniversaries() {
   }, [mode]);
   async function save(next: Anniversary[]) {
     if (mode === 'private') {
+      writing.current = true;
+      requestVersion.current++;
       setBusy(true);
       setError('');
       try {
@@ -84,6 +89,7 @@ export function Anniversaries() {
         setError(e instanceof Error ? e.message : '保存失败');
         return false;
       } finally {
+        writing.current = false;
         setBusy(false);
       }
     }
@@ -98,7 +104,9 @@ export function Anniversaries() {
     return true;
   }
   const all = [
-    { id: 'start', title: '我们的恋爱纪念日', date: couple.start, yearly: true },
+    ...(couple.start
+      ? [{ id: 'start', title: '我们的恋爱纪念日', date: couple.start, yearly: true }]
+      : []),
     ...items,
   ];
   return (
@@ -125,6 +133,8 @@ export function Anniversaries() {
                 )
               )
                 return;
+              writing.current = true;
+              requestVersion.current++;
               setBusy(true);
               setError('');
               try {
@@ -143,6 +153,7 @@ export function Anniversaries() {
               } catch (e) {
                 setError(e instanceof Error ? e.message : '导入失败');
               } finally {
+                writing.current = false;
                 setBusy(false);
               }
             }}
@@ -155,10 +166,14 @@ export function Anniversaries() {
         <Heart size={28} />
         <p>我们已经一起走过</p>
         <strong>
-          {today ? Math.max(0, daysBetween(couple.start, today)) : '—'}
+          {today && couple.start ? Math.max(0, daysBetween(couple.start, today)) : '—'}
           <small>天</small>
         </strong>
-        <span>从 {couple.start} 开始 · 按上海日期计算</span>
+        <span>
+          {couple.start
+            ? `从 ${couple.start} 开始 · 按上海日期计算`
+            : '尚未设置相恋日期，请在服务器配置后重启。'}
+        </span>
       </div>
       <div className="anniversary-list">
         {all.map((item) => {

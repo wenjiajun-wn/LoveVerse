@@ -29,6 +29,8 @@ export default defineConfig({
     reuseExistingServer: false,
     env: {
       LOVEVERSE_MODE: 'private',
+      LOVEVERSE_COUPLE_NAMES: '',
+      LOVEVERSE_COUPLE_START: '',
       LOVEVERSE_ORIGIN: 'http://127.0.0.1:3101',
       LOVEVERSE_DATA_DIR: process.env.LOVEVERSE_E2E_DIR,
       LOVEVERSE_AI_ENABLED: 'true',

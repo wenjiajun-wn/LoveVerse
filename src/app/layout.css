@@ -51,7 +51,7 @@
     flex-wrap: wrap;
   }
 }
-/* 九个入口在中等桌面独占可滚动导航行，避免与品牌互相挤压。 */
+/* 九个入口在中等桌面独占换行导航区，避免与品牌互相挤压。 */
 @media (min-width: 768px) and (max-width: 1350px) {
   .app-shell .site-header {
     display: grid;
@@ -64,15 +64,17 @@
     grid-column: 1 / -1;
     grid-row: 2;
     width: 100%;
-    height: 52px;
+    height: auto;
+    min-height: 56px;
+    flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 12px;
+    gap: 4px 12px;
+    padding-block: 8px;
     border-top: 1px solid var(--line);
-    overflow-x: auto;
-    scrollbar-width: thin;
+    overflow: visible;
   }
   .app-shell .site-header nav a {
-    font-size: 12px;
+    font-size: 13px;
     padding-inline: 8px;
     flex: 0 0 auto;
   }
@@ -82,5 +84,38 @@
   .app-shell .couple-badge {
     grid-column: 2;
     grid-row: 1;
+  }
+}
+
+/* 主导航集中在此维护；横向滚动保留可见滚动条。 */
+.site-header nav {
+  scrollbar-color: var(--accent) var(--surface);
+  scroll-padding-inline: 12px;
+}
+.site-header nav a {
+  font-size: 13px;
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+.site-header nav a:focus-visible {
+  outline-offset: -3px;
+}
+@media (max-width: 767px) {
+  .site-header nav a {
+    font-size: 13px;
+    min-width: max-content;
+    padding-inline: 14px;
+  }
+  .site-header nav {
+    height: 56px;
+    padding-block: 4px;
+  }
+  .site-header:after {
+    content: '左右滑动查看更多入口';
+    position: absolute;
+    right: 6%;
+    bottom: 59px;
+    color: var(--muted);
+    font-size: 12px;
   }
 }

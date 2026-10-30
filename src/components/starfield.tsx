@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react';
 export function Starfield() {
   const host = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    // Reduced-motion visitors keep the CSS starfield without downloading Three.js.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     let cleanup = () => {};
     let disposed = false;
     import('three')

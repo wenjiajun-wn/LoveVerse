@@ -1,4 +1,6 @@
-import { beforeAll, beforeEach, afterEach, describe, expect, it } from 'vitest';
+import { getCoupleProfile } from '../../src/lib/auth/couple';
+import { GET as sessionRoute } from '../../src/app/api/auth/session/route';
+import { beforeAll, beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -67,6 +69,7 @@ beforeEach(async () => {
   ctx = await authenticate(new Request('http://localhost:3000', { headers: { cookie } }));
 });
 afterEach(async () => {
+  vi.unstubAllEnvs();
   if (
     path.dirname(root) !== path.resolve(tmpdir()) ||
     !path.basename(root).startsWith('loveverse-unit-')
@@ -357,5 +360,33 @@ describe('搜索、图片、纪念日', () => {
     expect(
       await saveAnniversaries(ctx, { items: [], revision: first.data.revision }),
     ).toMatchObject({ ok: false, error: { code: 'CONFLICT' } });
+  });
+});
+
+describe('私人情侣配置', () => {
+  it('空值或非法日期不回退演示身份和日期', async () => {
+    vi.stubEnv('LOVEVERSE_COUPLE_NAMES', '');
+    vi.stubEnv('LOVEVERSE_COUPLE_START', '');
+    expect(await getCoupleProfile(ctx)).toEqual({ names: null, start: null });
+    vi.stubEnv('LOVEVERSE_COUPLE_START', '2025-02-29');
+    expect((await getCoupleProfile(ctx)).start).toBeNull();
+  });
+  it('认证后返回真实配置，未登录及伪造身份不得读取', async () => {
+    vi.stubEnv('LOVEVERSE_COUPLE_NAMES', '测试甲 & 测试乙');
+    vi.stubEnv('LOVEVERSE_COUPLE_START', '2024-02-29');
+    const unauth = await sessionRoute(new Request('http://localhost:3000/api/auth/session'));
+    expect(unauth.status).toBe(401);
+    expect(await unauth.text()).not.toContain('测试甲');
+    await expect(
+      getCoupleProfile({ userId: email, role: 'member', expiresAt: Date.now() + 1000 }),
+    ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+    const result = await sessionRoute(
+      new Request('http://localhost:3000/api/auth/session', { headers: { cookie } }),
+    );
+    expect(result.headers.get('cache-control')).toContain('no-store');
+    expect((await result.json()).data.couple).toEqual({
+      names: '测试甲 & 测试乙',
+      start: '2024-02-29',
+    });
   });
 });

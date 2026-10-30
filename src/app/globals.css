@@ -13,7 +13,14 @@
   color-scheme: dark;
   --bg: #0b0d19;
   --ink: #f0edf9;
-  --muted: #a8a5bd;
+  --muted: #b8b5cc;
+  --surface: #151827;
+  --surface-raised: #1d2134;
+  --control-line: #74738e;
+  --danger: #ffb8cf;
+  --success: #a7ddc8;
+  --radius-card: 16px;
+  --radius-control: 10px;
   --line: #ffffff14;
   --accent: #d0b8ff;
   --layout-max: 1440px;
@@ -27,7 +34,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: Arial, 'Microsoft YaHei', 'PingFang SC', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1.75;
 }
 button,
 a,
@@ -52,7 +60,10 @@ button {
 }
 button:focus-visible,
 a:focus-visible,
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
   outline: 2px solid #e1caff;
   outline-offset: 5px;
 }
@@ -79,7 +90,6 @@ img {
   flex-direction: column;
   position: relative;
   isolation: isolate;
-  overflow: hidden;
   min-height: 100dvh;
 }
 .starfield {
@@ -180,7 +190,7 @@ nav a.active:after {
   background: #35334f;
   border: 2px solid #0b0d19;
   border-radius: 50%;
-  font-size: 10px;
+  font-size: 12px;
 }
 .couple-badge > span:nth-child(2) {
   background: #6b4c64;
@@ -191,7 +201,7 @@ nav a.active:after {
   color: #d8b0cb;
 }
 .couple-badge small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -213,7 +223,7 @@ main {
   z-index: 2;
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 2.3px;
   color: #bcb0d5;
   display: flex;
@@ -243,7 +253,7 @@ main {
   color: #d3b9eb;
 }
 .hero-copy > p {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--muted);
   line-height: 2.15;
   letter-spacing: 1px;
@@ -299,7 +309,7 @@ main {
 }
 .together small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: #918b9f;
   margin-top: 5px;
   letter-spacing: 1px;
@@ -314,9 +324,10 @@ main {
   color: #cfb1d9;
 }
 .hero-index {
+  left: var(--layout-gutter);
   position: absolute;
   bottom: 24px;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 2px;
   color: #77748d;
 }
@@ -340,12 +351,14 @@ main {
 }
 .orbit-two {
   width: 78%;
-  height: 76%;
+  height: auto;
+  aspect-ratio: 1.1;
   transform: translate(-50%, -50%) rotate(30deg);
 }
 .orbit-three {
-  width: 115%;
-  height: 64%;
+  width: 96%;
+  height: auto;
+  aspect-ratio: 1.6;
   border-style: dashed;
   opacity: 0.5;
   transform: translate(-50%, -50%) rotate(-35deg);
@@ -417,7 +430,7 @@ main {
   justify-content: center;
   align-items: center;
   gap: 8px;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 2px;
   color: #ccbce0;
 }
@@ -432,6 +445,7 @@ main {
   min-height: 50px;
 }
 .mini-planet {
+  flex-shrink: 0;
   height: 39px;
   width: 39px;
   display: block;
@@ -445,14 +459,15 @@ main {
   transform: scale(1.18);
 }
 .satellite-caption {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 1px;
   color: #d7cddd;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  max-width: 110px;
 }
 .satellite-caption small {
   display: block;
-  font-size: 8px;
+  font-size: 12px;
   color: #9490aa;
   margin-top: 5px;
   letter-spacing: 0.5px;
@@ -503,7 +518,7 @@ main {
   position: absolute;
   right: 0;
   top: 0;
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 2px;
   color: #77748d;
 }
@@ -515,7 +530,7 @@ main {
   justify-content: center;
   align-items: center;
   gap: 10px;
-  font-size: 10px;
+  font-size: 12px;
   color: #9992ad;
   letter-spacing: 1px;
 }
@@ -556,7 +571,7 @@ main {
 }
 .explore-heading > span:last-child {
   color: #9992ab;
-  font-size: 10px;
+  font-size: 12px;
 }
 .explore-grid {
   display: grid;
@@ -575,16 +590,16 @@ main {
 .explore-card > img {
   height: 100%;
   transition: transform 0.5s;
-  opacity: 0.5;
+  opacity: 0.8;
 }
 .explore-card:hover > img {
   transform: scale(1.06);
-  opacity: 0.7;
+  opacity: 0.9;
 }
 .explore-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, #0c0d1de6, transparent);
+  background: linear-gradient(0deg, #0c0d1de6, #0c0d1d10 65%, #0c0d1d80);
 }
 .explore-top {
   position: absolute;
@@ -596,7 +611,7 @@ main {
   color: #dbcede;
 }
 .explore-top > span {
-  font-size: 10px;
+  font-size: 12px;
   color: #c4b7d0;
 }
 .explore-copy {
@@ -610,7 +625,7 @@ main {
   letter-spacing: 2px;
 }
 .explore-copy p {
-  font-size: 10px;
+  font-size: 12px;
   color: #b3aabd;
   margin-top: 10px;
   letter-spacing: 1px;
@@ -629,7 +644,7 @@ footer {
   justify-content: space-between;
   gap: 16px;
   color: #8d879e;
-  font-size: 10px;
+  font-size: 12px;
 }
 footer > span {
   display: flex;
@@ -637,11 +652,11 @@ footer > span {
   gap: 8px;
 }
 footer > span:nth-child(2) {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 1.5px;
 }
 footer small {
-  font-size: 9px;
+  font-size: 12px;
 }
 .footer-line {
   margin: 0 10px;
@@ -667,13 +682,13 @@ footer small {
   margin: 15px 0;
 }
 .section-heading p {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--muted);
   line-height: 1.8;
 }
 .count-label {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   white-space: nowrap;
 }
 .filters {
@@ -704,17 +719,18 @@ footer small {
   width: 100%;
   break-inside: avoid;
   margin-bottom: 24px;
-  background: #151522;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-card);
   overflow: hidden;
   text-align: left;
 }
 .photo-card img {
-  height: 230px;
+  height: auto;
+  border-radius: var(--radius-control);
 }
-.photo-card:nth-child(2n) img {
-  height: 310px;
+.photo-card .photo-caption {
+  padding: 18px 6px 8px;
 }
 .photo-caption {
   padding: 21px;
@@ -723,7 +739,7 @@ footer small {
   display: flex;
   justify-content: space-between;
   color: #b1a1bf;
-  font-size: 10px;
+  font-size: 12px;
   gap: 10px;
 }
 .photo-caption h2 {
@@ -737,12 +753,13 @@ footer small {
 }
 .photo-caption p {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 15px;
+  max-inline-size: 60ch;
   line-height: 1.9;
   margin-top: 15px;
 }
 .photo-card:hover {
-  background: #202033;
+  background: #ffffff04;
 }
 .timeline {
   display: grid;
@@ -754,10 +771,11 @@ footer small {
   align-items: center;
   gap: 24px;
   text-align: left;
-  background: #15152280;
-  border: 1px solid var(--line);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 0;
 }
 .timeline-item > img {
   height: 150px;
@@ -816,7 +834,10 @@ footer small {
   background: #111322db;
 }
 .detail-image {
-  height: 320px;
+  height: auto;
+  max-height: 60dvh;
+  object-fit: contain;
+  background: var(--bg);
 }
 .detail-copy {
   padding: 32px;
@@ -843,7 +864,7 @@ footer small {
   padding: 35px;
   background: radial-gradient(ellipse at 50% 60%, #69507a30, transparent 65%);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-control);
 }
 .days-banner > svg {
   margin: auto;
@@ -868,7 +889,7 @@ footer small {
 }
 .days-banner > span {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin: 16px 0;
 }
@@ -900,7 +921,7 @@ footer small {
   margin-top: 40px;
   padding: 28px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-card);
   background: #151522;
 }
 .anniversary-form h2 {
@@ -928,9 +949,9 @@ input:not([type='checkbox']) {
   width: 100%;
   min-width: 0;
   padding: 12px;
-  border: 1px solid #ffffff26;
+  border: 1px solid var(--control-line);
   background: #0e101b;
-  border-radius: 4px;
+  border-radius: var(--radius-control);
   color: var(--ink);
   font: inherit;
 }
@@ -944,7 +965,7 @@ input:not([type='checkbox']) {
 }
 .anniversary-form > small {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .anniversary-form > p {
   margin-top: 10px;
@@ -959,7 +980,7 @@ input:not([type='checkbox']) {
 .game-card {
   text-align: left;
   padding: 30px;
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   border: 1px solid var(--line);
   background: #151522;
 }
@@ -979,7 +1000,7 @@ input:not([type='checkbox']) {
   background: radial-gradient(ellipse, #856b4b40, transparent 70%);
 }
 .game-card small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .game-card h2 {
@@ -989,7 +1010,7 @@ input:not([type='checkbox']) {
 }
 .game-card p {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.9;
 }
 .game-link {
@@ -1095,10 +1116,10 @@ input:not([type='checkbox']) {
     top: 48px;
   }
   .satellite-caption {
-    font-size: 10px;
+    font-size: 12px;
   }
   .planet-1 {
-    right: -3%;
+    right: 0;
   }
   .hero-actions {
     gap: 12px;
@@ -1123,7 +1144,7 @@ input:not([type='checkbox']) {
   .site-header {
     height: auto;
     min-height: 82px;
-    padding: 20px 6% 68px;
+    padding: 20px 6% 94px;
     position: relative;
   }
   .brand {
@@ -1131,14 +1152,14 @@ input:not([type='checkbox']) {
   }
   .couple-badge small {
     display: block;
-    font-size: 9px;
+    font-size: 12px;
   }
   .site-header nav {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 50px;
+    height: 56px;
     gap: 0;
     justify-content: flex-start;
     border-top: 1px solid var(--line);
@@ -1147,7 +1168,7 @@ input:not([type='checkbox']) {
     scrollbar-width: thin;
   }
   nav a {
-    font-size: 10px;
+    font-size: 12px;
     padding-inline: 12px;
     flex: 0 0 auto;
   }
@@ -1166,10 +1187,10 @@ input:not([type='checkbox']) {
     margin: 22px 0;
   }
   .hero-copy > p {
-    font-size: 12px;
+    font-size: 15px;
   }
   .hero .eyebrow {
-    font-size: 9px;
+    font-size: 12px;
   }
   .hero-actions {
     gap: 20px;
@@ -1197,19 +1218,19 @@ input:not([type='checkbox']) {
     top: 10%;
   }
   .planet-1 {
-    right: -5%;
+    right: 0;
     top: 27%;
     flex-direction: column;
     gap: 5px;
   }
   .planet-2 {
-    left: -5%;
+    left: 0;
     top: 55%;
     flex-direction: column;
     gap: 5px;
   }
   .planet-3 {
-    right: -4%;
+    right: 0;
     top: 68%;
     flex-direction: column;
     gap: 5px;
@@ -1219,14 +1240,15 @@ input:not([type='checkbox']) {
     top: 88%;
   }
   .satellite-caption small {
-    font-size: 7px;
+    font-size: 12px;
   }
   .map-note {
     bottom: -38px;
-    font-size: 9px;
+    font-size: 12px;
   }
   .map-coordinate {
-    font-size: 7px;
+    display: none;
+    font-size: 12px;
     top: 10px;
   }
   .hero-index {
@@ -1236,7 +1258,7 @@ input:not([type='checkbox']) {
     padding: 40px 6% 35px;
   }
   .explore-heading {
-    font-size: 11px;
+    font-size: 12px;
   }
   .explore-heading > span:last-child {
     display: none;
@@ -1289,12 +1311,7 @@ input:not([type='checkbox']) {
   .photo-card {
     margin-bottom: 12px;
   }
-  .photo-card img {
-    height: 170px;
-  }
-  .photo-card:nth-child(2n) img {
-    height: 220px;
-  }
+
   .photo-caption {
     padding: 14px 10px;
   }
@@ -1305,7 +1322,7 @@ input:not([type='checkbox']) {
   }
   .photo-caption small {
     display: block;
-    font-size: 9px;
+    font-size: 12px;
   }
   .photo-caption small span {
     display: block;
@@ -1326,7 +1343,7 @@ input:not([type='checkbox']) {
     grid-column: 1/-1;
   }
   .timeline-date {
-    font-size: 10px;
+    font-size: 12px;
   }
   .game-grid {
     grid-template-columns: 1fr;
@@ -1343,9 +1360,7 @@ input:not([type='checkbox']) {
   .game-link {
     margin-top: 20px;
   }
-  .detail-image {
-    height: 240px;
-  }
+
   .detail-copy {
     padding: 24px;
   }
@@ -1364,7 +1379,7 @@ input:not([type='checkbox']) {
     margin-top: 0;
   }
   .anniversary-list .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1px;
   }
   .anniversary-list h2 {
@@ -1393,11 +1408,11 @@ input:not([type='checkbox']) {
     gap: 12px;
   }
   .primary {
-    font-size: 11px;
+    font-size: 12px;
     padding: 12px;
   }
   .text-button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .couple-badge small {
     display: none;
@@ -1406,7 +1421,7 @@ input:not([type='checkbox']) {
     height: 360px;
   }
   .satellite-caption {
-    font-size: 9px;
+    font-size: 12px;
   }
   .section-heading h1 {
     font-size: 24px;
@@ -1420,4 +1435,46 @@ input:not([type='checkbox']) {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* 无私人照片时保留原卡片尺寸和深色背景。 */
+.explore-card .photo-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #c6bdd9;
+  font-size: 12px;
+}
+.couple-badge small {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button,
+summary {
+  min-height: 44px;
+}
+input:not([type='checkbox']),
+select,
+textarea {
+  font-size: 16px;
+  min-width: 0;
+}
+h1,
+h2,
+h3,
+p,
+label {
+  overflow-wrap: anywhere;
+}
+.hero-actions {
+  flex-wrap: wrap;
+}
+
+/* 日期和计数使用等宽数字，保留中文正文的原有字体。 */
+.together strong, .timeline-date, .countdown, .count-label, .photo-caption small {
+  font-variant-numeric: tabular-nums;
 }

@@ -292,12 +292,10 @@ export function LoveAgent() {
                 <button
                   className="text-button"
                   onClick={() =>
-                    setQuestion(
-                      mode === 'demo' ? '第一次旅行去了哪里？' : '我们第一次爬山的故事是什么？',
-                    )
+                    setQuestion(mode === 'demo' ? '第一次旅行去了哪里？' : '我们保存了哪些回忆？')
                   }
                 >
-                  {mode === 'demo' ? '第一次旅行去了哪里？' : '我们第一次爬山的故事是什么？'}
+                  {mode === 'demo' ? '第一次旅行去了哪里？' : '我们保存了哪些回忆？'}
                 </button>
               </div>
             )}
